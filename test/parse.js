@@ -168,6 +168,7 @@ describe('parse()', function () {
         expect(Qs.parse('foo[]=bar&foo[bad]=baz')).to.deep.equal({ foo: { '0': 'bar', bad: 'baz' } });
         expect(Qs.parse('foo[bad]=baz&foo[]=bar&foo[]=foo')).to.deep.equal({ foo: { bad: 'baz', '0': 'bar', '1': 'foo' } });
         expect(Qs.parse('foo[0][a]=a&foo[0][b]=b&foo[1][a]=aa&foo[1][b]=bb')).to.deep.equal({ foo: [{ a: 'a', b: 'b' }, { a: 'aa', b: 'bb' }] });
+        expect(Qs.parse('a[]=b&a[t]=u&a[]=c')).to.deep.equal({ a: { '0': 'b', '1': 'c', t: 'u' } });
         expect(Qs.parse('a[]=b&a[hasOwnProperty]=c&a[x]=y')).to.deep.equal({ a: { '0': 'b', '1': 'c', x: 'y' } });
         done();
     });
@@ -478,6 +479,14 @@ describe('parse()', function () {
         expect(Qs.parse('a.b=val2&a=val1&a.c=val3', { allowDots: true })).to.deep.equal(expectObj);
         expectObj = { a: { 0: 'val1', 1: 'val3', b: 'val2' } };
         expect(Qs.parse('a.b=val2&a=val1&a=val3', { allowDots: true })).to.deep.equal(expectObj);
+        expect(Qs.parse('a=val1&a.b=val2&a=val3', { allowDots: true })).to.deep.equal(expectObj);
+        expectObj = { a: { 0: 'val1', 1: 'val2', 2 :'val3', b: 'val4' } };
+        expect(Qs.parse('a=val1&a=val2&a=val3&a.b=val4', { allowDots: true })).to.deep.equal(expectObj);
+        expectObj = { a: { 0: 'val1', b: ['val2', 'val3'] } };
+        expect(Qs.parse('a=val1&a.b=val2&a.b=val3', { allowDots: true })).to.deep.equal(expectObj);
+        expectObj = { a: { 0: 'val1', b: { 0: 'val2', c: 'val3' } } };
+        expect(Qs.parse('a=val1&a.b=val2&a.b.c=val3', { allowDots: true })).to.deep.equal(expectObj);
+        expect(Qs.parse('a.b.c=val3&a.b=val2&a=val1', { allowDots: true })).to.deep.equal(expectObj);
         done();
     });
 });
